@@ -1,20 +1,26 @@
-export default class NyaaExtension {
+export default class NyaaSource {
   async search(query) {
+    // We use the RSS feed because it's easier to parse than raw HTML
     const url = `https://nyaa.si/?page=rss&q=${encodeURIComponent(query)}&c=1_2&f=0`;
     const response = await fetch(url);
-    const text = await response.text();
-    
-    // Hayase provides a built-in XML parser in the extension environment
+    const xmlText = await response.text();
+
     const parser = new DOMParser();
-    const xml = parser.parseFromString(text, "text/xml");
+    const xml = parser.parseFromString(xmlText, "text/xml");
     const items = xml.querySelectorAll("item");
 
-    return Array.from(items).map(item => ({
-      title: item.querySelector("title").textContent,
-      magnet: item.querySelector("link").textContent,
-      seeders: parseInt(item.getElementsByTagName("nyaa:seeders")[0]?.textContent || 0),
-      leechers: parseInt(item.getElementsByTagName("nyaa:leechers")[0]?.textContent || 0),
-      size: item.getElementsByTagName("nyaa:size")[0]?.textContent || "Unknown"
-    }));
+    return Array.from(items).map(item => {
+      // Nyaa uses custom namespaces for seeders and size
+      const getNsTag = (name) => item.getElementsByTagName(`nyaa:${name}`)[0]?.textContent;
+
+      return {
+        title: item.querySelector("title")?.textContent || "Unknown Title",
+        magnet: item.querySelector("link")?.textContent || "",
+        seeders: parseInt(getNsTag("seeders") || "0"),
+        leechers: parseInt(getNsTag("leechers") || "0"),
+        size: getNsTag("size") || "Unknown Size",
+        date: item.querySelector("pubDate")?.textContent
+      };
+    });
   }
 }
