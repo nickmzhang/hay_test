@@ -1,0 +1,7 @@
+{
+  "id": "nyaa-ext",
+  "name": "Nyaa",
+  "version": "1.0.0",
+  "description": "Searches Nyaa.si for anime torrents",
+  "capabilities": ["torrent_search"]
+}
