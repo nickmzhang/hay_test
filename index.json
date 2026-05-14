@@ -1,0 +1,19 @@
+{
+  "name": "NickMZhang Custom Sources",
+  "extensions": [
+    {
+      "id": "nyaa-ext",
+      "name": "Nyaa.si",
+      "version": "1.0.0",
+      "entry": "nyaa/main.js",
+      "manifest": "nyaa/manifest.json"
+    },
+    {
+      "id": "nekobt-ext",
+      "name": "NekoBT",
+      "version": "1.0.0",
+      "entry": "nekobt/main.js",
+      "manifest": "nekobt/manifest.json"
+    }
+  ]
+}
