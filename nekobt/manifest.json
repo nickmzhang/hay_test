@@ -1,0 +1,7 @@
+{
+  "id": "nekobt-ext",
+  "name": "NekoBT",
+  "version": "1.0.0",
+  "description": "Searches NekoBT for anime torrents",
+  "capabilities": ["torrent_search"]
+}
