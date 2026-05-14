@@ -8,7 +8,6 @@
     "accuracy": "medium",
     "languages": ["US"],
     "icon": "https://nekobt.to/favicon.ico",
-    "update": "https://raw.githubusercontent.com/nickmzhang/hay_test/main/index.json"
     "code": "https://raw.githubusercontent.com/nickmzhang/hay_test/main/myexample.js"
   }
 ]
