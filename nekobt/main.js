@@ -1,29 +1,35 @@
 export default class NekoBTSource {
   async search(query) {
-    const url = `https://nekobt.com/search/${encodeURIComponent(query)}`;
-    const response = await fetch(url);
-    const html = await response.text();
+    try {
+      const url = `https://nekobt.com/search/${encodeURIComponent(query)}`;
+      const response = await fetch(url);
+      if (!response.ok) return [];
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    
-    // NekoBT usually lists results in a table or list-group
-    const rows = doc.querySelectorAll(".list-group-item"); 
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+      
+      // Target the table rows in the results table
+      const rows = doc.querySelectorAll("table.table tbody tr") || []; 
 
-    return Array.from(rows).map(row => {
-      const titleLink = row.querySelector(".title a");
-      const magnet = row.querySelector("a[href^='magnet:']")?.getAttribute("href");
-      
-      // Metadata (Seeders/Size) are usually in spans or specific classes
-      const meta = row.querySelector(".meta")?.textContent || "";
-      
-      return {
-        title: titleLink?.textContent?.trim() || "Unknown",
-        magnet: magnet || "",
-        seeders: 0, // NekoBT often hides this behind hover/JS
-        leechers: 0,
-        size: meta.match(/\d+(\.\d+)?\s?(GB|MB)/i)?.[0] || "Unknown"
-      };
-    }).filter(item => item.magnet); // Only return items with valid magnets
+      return Array.from(rows).map(row => {
+        const titleAnchor = row.querySelector("a[href^='/show/']");
+        const magnetAnchor = row.querySelector("a[href^='magnet:']");
+        
+        // NekoBT usually has columns: Type, Title, Size, Date, Seeds, Leeches
+        const cells = row.querySelectorAll("td");
+
+        return {
+          title: titleAnchor?.textContent?.trim() || "Unknown",
+          magnet: magnetAnchor?.getAttribute("href") || "",
+          seeders: parseInt(cells[4]?.textContent) || 0,
+          leechers: parseInt(cells[5]?.textContent) || 0,
+          size: cells[2]?.textContent?.trim() || "Unknown"
+        };
+      }).filter(item => item.magnet !== "");
+    } catch (e) {
+      console.error("NekoBT Error:", e);
+      return []; 
+    }
   }
 }
